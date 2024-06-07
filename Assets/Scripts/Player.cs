@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, Controls.IPlayerActions
 {
     private Controls controls;
 
@@ -15,26 +15,28 @@ public class Player : MonoBehaviour
 
     private void OnEnable()
     {
+        controls.Player.SetCallbacks(this);
         controls.Enable();
 
-        controls.Player.Movement.started += OnMovement;
-        controls.Player.Movement.canceled += OnMovement;
+        //controls.Player.Movement.started += OnMovement;
+        //controls.Player.Movement.canceled += OnMovement;
 
-        controls.Player.Exit.performed += OnExit;
+        //controls.Player.Exit.performed += OnExit;
 
     }
 
     private void OnDisable()
     {
+        controls.Player.SetCallbacks(null);
         controls.Disable();
 
-        controls.Player.Movement.started -= OnMovement;
-        controls.Player.Movement.canceled -= OnMovement;
+        //controls.Player.Movement.started -= OnMovement;
+        //controls.Player.Movement.canceled -= OnMovement;
 
-        controls.Player.Exit.performed -= OnExit;
+        //controls.Player.Exit.performed -= OnExit;
     }
 
-    private void OnMovement(InputAction.CallbackContext context)
+    void Controls.IPlayerActions.OnMovement(InputAction.CallbackContext context)
     {
         if (context.started)
             moveKeyHeld = true;
@@ -42,9 +44,10 @@ public class Player : MonoBehaviour
             moveKeyHeld = false;
     }
 
-    private void OnExit(InputAction.CallbackContext context)
+    void Controls.IPlayerActions.OnExit(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
-        Debug.Log("Exit");
+        if (context.performed)
+            Action.EscapeAction();
     }
 
     private void FixedUpdate()
@@ -55,8 +58,36 @@ public class Player : MonoBehaviour
 
     private void MovePlayer()
     {
-        transform.position += (Vector3)controls.Player.Movement.ReadValue<Vector2>();
-        GameManager.instance.EndTurn();
+        Vector2 direction = controls.Player.Movement.ReadValue<Vector2>();
+        Vector2 roundedDirection = new Vector2(Mathf.Round(direction.x), Mathf.Round(direction.y));
+        Vector3 futurePosition = transform.position + (Vector3)roundedDirection;
+
+        if (IsValidPosition(futurePosition))
+            Action.MovementAction(GetComponent<Entity>(), roundedDirection);
+    }
+
+    private bool IsValidPosition (Vector3 futurePosition)
+    {
+        Vector3Int gridPosition = MapManager.instance.FloorMap.WorldToCell(futurePosition);
+
+        if (!MapManager.instance.InBounds(gridPosition.x, gridPosition.y))
+        {
+            Debug.Log("Cell " + gridPosition.x + ", " + gridPosition.y + " is out of bounds!");
+            return false;
+        }
+
+        else if (MapManager.instance.ObstacleMap.HasTile(gridPosition))
+        {
+            Debug.Log("Cell " + gridPosition.x + ", " + gridPosition.y + " is blocked by an obstacle!");
+            return false;
+        }
+
+        else if (futurePosition == transform.position)
+        {
+            return false; 
+        }
+
+        return true;
     }
 
 }
