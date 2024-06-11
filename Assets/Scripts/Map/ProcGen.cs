@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Unity.Burst.Intrinsics.Arm;
 
-sealed class ProcGen  
+sealed class ProcGen
 {
-
     public void GenerateDungeon(int mapWidth, int mapHeight, int roomMaxSize, int roomMinSize, int maxRooms, List<RectangularRoom> rooms)
     {
         for (int roomNum = 0; roomNum < maxRooms; roomNum++)
@@ -16,6 +16,7 @@ sealed class ProcGen
             int roomY = Random.Range(0, mapHeight - roomHeight - 1);
 
             RectangularRoom newRoom = new RectangularRoom(roomX, roomY, roomWidth, roomHeight);
+            //StartCoroutine(BuildDelay());
 
             // Check if there's overlap
             if (newRoom.Overlaps(rooms))
@@ -36,17 +37,12 @@ sealed class ProcGen
                     }
                     else
                     {
-                        if (MapManager.instance.ObstacleMap.GetTile(new Vector3Int(x, y, 9)))
-                        {
-                            MapManager.instance.ObstacleMap.SetTile(new Vector3Int(x, y, 0), null);
-                        }
-
-                        MapManager.instance.FloorMap.SetTile(new Vector3Int(x, y, 0), MapManager.instance.FloorTile);
+                        SetFloorTile(new Vector3Int(x, y));
                     }
                 }
             }
 
-            if (MapManager.instance.Rooms.Count == 0)
+            if (rooms.Count == 0)
             {
                 // The first room, where the player starts
                 MapManager.instance.CreatePlayer(newRoom.Center());
@@ -54,7 +50,7 @@ sealed class ProcGen
             else
             {
                 // Dig tunnel between this room and the previous one
-                TunnelBetween(MapManager.instance.Rooms[MapManager.instance.Rooms.Count - 1], newRoom);
+                TunnelBetween(rooms[rooms.Count - 1], newRoom);
             }
 
             rooms.Add(newRoom);
@@ -76,17 +72,13 @@ sealed class ProcGen
         List<Vector2Int> tunnelCoords = new List<Vector2Int>();
 
         // Generate tunnel logic
-        BresenhamLine(oldRoomCenter, tunnelCorner, tunnelCoords);
-        BresenhamLine(tunnelCorner, newRoomCenter, tunnelCoords);
+        BresenhamLine.Compute(oldRoomCenter, tunnelCorner, tunnelCoords);
+        BresenhamLine.Compute(tunnelCorner, newRoomCenter, tunnelCoords);
 
         // Set tunnel tiles
         for (int i = 0; i < tunnelCoords.Count; i++)
         {
-            if (MapManager.instance.ObstacleMap.HasTile(new Vector3Int(tunnelCoords[i].x, tunnelCoords[i].y)))
-                MapManager.instance.ObstacleMap.SetTile(new Vector3Int(tunnelCoords[i].x, tunnelCoords[i].y), null);
-
-            // Set floor tiles
-            MapManager.instance.FloorMap.SetTile(new Vector3Int(tunnelCoords[i].x, tunnelCoords[i].y, 0), MapManager.instance.FloorTile);
+            SetFloorTile(new Vector3Int(tunnelCoords[i].x, tunnelCoords[i].y));
 
             // Set tiles around as walls
             for (int x = tunnelCoords[i].x - 1; x <= tunnelCoords[i].x + 1; x++)
@@ -100,46 +92,34 @@ sealed class ProcGen
                 }
             }
         }
-
     }
 
     private bool SetWallTileIfEmpty(Vector3Int pos)
     {
-        if (MapManager.instance.FloorMap.GetTile(new Vector3Int(pos.x, pos.y, 0)))
+        if (MapManager.instance.FloorMap.GetTile(pos))
         {
             return true;
         }
         else
         {
-            MapManager.instance.ObstacleMap.SetTile(new Vector3Int(pos.x, pos.y, 0), MapManager.instance.WallTile);
+            MapManager.instance.ObstacleMap.SetTile(pos, MapManager.instance.WallTile);
             return false;
         }
     }
 
-    private void BresenhamLine(Vector2Int roomCenter, Vector2Int tunnelCorner, List<Vector2Int> tunnelCoords)
+    private void SetFloorTile(Vector3Int pos)
     {
-        int x = roomCenter.x, y = roomCenter.y;
-        int dx = Mathf.Abs(tunnelCorner.x - roomCenter.x), dy = Mathf.Abs(tunnelCorner.y - roomCenter.y);
-        int sx = roomCenter.x < tunnelCorner.x ? 1 : -1, sy = roomCenter.y < tunnelCorner.y ? 1 : -1;
-        int err = dx - dy;
-
-        while (true)
+        if (MapManager.instance.ObstacleMap.GetTile(pos))
         {
-            tunnelCoords.Add(new Vector2Int(x, y));
-            if (x == tunnelCorner.x && y == tunnelCorner.y)
-            { break; }
-            int e2 = 2 * err;
-
-            if (e2 > -dy)
-            {
-                err -= dy;
-                x += sx;
-            }
-            if (e2 < dx)
-            {
-                err += dx;
-                y += sy;
-            }
+            MapManager.instance.ObstacleMap.SetTile(pos, null);
         }
+
+        MapManager.instance.FloorMap.SetTile(pos, MapManager.instance.FloorTile);
+    }
+
+
+    private IEnumerator BuildDelay()
+    {
+        yield return new WaitForSeconds(0.25f);
     }
 }

@@ -13,6 +13,7 @@ static public class Action
     {
         //Debug.Log($"{entity.name} moves {direction}!");
         entity.Move(direction);
+        entity.UpdateFieldOfView();
         GameManager.instance.EndTurn();
     }
 

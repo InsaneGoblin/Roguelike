@@ -78,7 +78,7 @@ public class Player : MonoBehaviour, Controls.IPlayerActions
 
         else if (MapManager.instance.ObstacleMap.HasTile(gridPosition))
         {
-            Debug.Log("Cell " + gridPosition.x + ", " + gridPosition.y + " is blocked by an obstacle!");
+            //Debug.Log("Cell " + gridPosition.x + ", " + gridPosition.y + " is blocked by an obstacle!");
             return false;
         }
 
