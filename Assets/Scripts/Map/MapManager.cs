@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class MapManager : MonoBehaviour
 {
     public static MapManager instance;
+
+    [Header("Debug")]
+    [SerializeField] public bool showFog = true;
 
     [Header("Map Settings")]
     [SerializeField] private int width = 80;
@@ -14,6 +18,7 @@ public class MapManager : MonoBehaviour
     [SerializeField] private int roomMaxSize = 10;
     [SerializeField] private int roomMinSize = 6;
     [SerializeField] private int maxRooms = 30;
+    [SerializeField] private int maxMonstersPerRoom = 2;
 
     //[Header("Colors")]
     //[SerializeField] private Color32 darkColor = new Color32(0, 0, 0, 0);
@@ -32,7 +37,8 @@ public class MapManager : MonoBehaviour
     [SerializeField] private List<RectangularRoom> rooms = new List<RectangularRoom>();
     [SerializeField] private Dictionary<Vector3Int, TileData> tiles = new Dictionary<Vector3Int, TileData>();
 
-    public TileBase FloorTile {  get { return floorTile; } }
+
+ public TileBase FloorTile {  get { return floorTile; } }
     public TileBase WallTile { get { return wallTile; } }
     public Tilemap FloorMap { get { return floorMap; } }
     public Tilemap ObstacleMap { get { return obstacleMap; } }
@@ -68,22 +74,44 @@ public class MapManager : MonoBehaviour
         */
 
         ProcGen procGen = new ProcGen();
-        procGen.GenerateDungeon(width, height, roomMaxSize, roomMinSize, maxRooms, rooms);
+        procGen.GenerateDungeon(width, height, roomMaxSize, roomMinSize, maxRooms, maxMonstersPerRoom, rooms);
 
         AddTileMapToDictionary(floorMap);
         AddTileMapToDictionary(obstacleMap);
 
-        SetupFogMap();
+        if (showFog)
+            SetupFogMap();
 
-        Instantiate(Resources.Load<GameObject>("Prefabs/NPC"), new Vector3(40 - 5.5f, 25 + 0.5f, 0), Quaternion.identity).name = "NPC";
+        // Instantiate(Resources.Load<GameObject>("Prefabs/NPC"), new Vector3(40 - 5.5f, 25 + 0.5f, 0), Quaternion.identity).name = "NPC";
 
     }
 
     public bool InBounds(int x, int y) => 0 <= x && x < width && 0 <= y && y < height;
 
-    public void CreatePlayer(Vector2 position)
+    public void CreateEntity(string entity, Vector2 position)
     {
-        Instantiate(Resources.Load<GameObject>("Prefabs/Player"), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = "Player";
+        switch (entity)
+        {
+            case "Player":
+            {
+                Instantiate(Resources.Load<GameObject>("Prefabs/Player"), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = "Player";
+                  break;
+            }
+            case "Orc":
+                {
+                    Instantiate(Resources.Load<GameObject>("Prefabs/Orc"), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = "Orc";
+                    break;
+                }
+            case "Troll":
+                {
+                    Instantiate(Resources.Load<GameObject>("Prefabs/Troll"), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = "Troll";
+                    break;
+                }
+            default:
+                Debug.LogError("Entity not found");
+                break;
+        }
+        //Debug.Log("Created " + entity + " at " + position);
     }
     public void UpdateFogMap(List<Vector3Int> playerFOV)
     {
@@ -108,6 +136,17 @@ public class MapManager : MonoBehaviour
             fogMap.SetColor(pos, Color.clear);
             visibleTiles.Add(pos);
         }
+
+        // TODO Debug: remove fog, show everything
+        if (showFog)
+        {
+            foreach (Vector3Int pos in playerFOV)
+            {
+                tiles[pos].isVisible = true;
+                fogMap.SetColor(pos, Color.clear);
+                visibleTiles.Add(pos);
+            }
+        }
     }
 
     // If something is not in Player's FOV, hide it
@@ -119,12 +158,11 @@ public class MapManager : MonoBehaviour
 
             Vector3Int entityPosition = floorMap.WorldToCell(entity.transform.position);
 
-            if (visibleTiles.Contains(entityPosition))
+
+            if (!showFog)
                 entity.GetComponent<SpriteRenderer>().enabled = true;
             else
-                entity.GetComponent<SpriteRenderer>().enabled = false;
-
-            //GetComponent<SpriteRenderer>().enabled = visibleTiles.Contains(entityPosition);
+                entity.GetComponent<SpriteRenderer>().enabled = visibleTiles.Contains(entityPosition);
         }
     }
 

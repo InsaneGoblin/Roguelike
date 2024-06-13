@@ -17,23 +17,12 @@ public class Player : MonoBehaviour, Controls.IPlayerActions
     {
         controls.Player.SetCallbacks(this);
         controls.Enable();
-
-        //controls.Player.Movement.started += OnMovement;
-        //controls.Player.Movement.canceled += OnMovement;
-
-        //controls.Player.Exit.performed += OnExit;
-
     }
 
     private void OnDisable()
     {
         controls.Player.SetCallbacks(null);
         controls.Disable();
-
-        //controls.Player.Movement.started -= OnMovement;
-        //controls.Player.Movement.canceled -= OnMovement;
-
-        //controls.Player.Exit.performed -= OnExit;
     }
 
     void Controls.IPlayerActions.OnMovement(InputAction.CallbackContext context)
@@ -50,6 +39,13 @@ public class Player : MonoBehaviour, Controls.IPlayerActions
             Action.EscapeAction();
     }
 
+    void Controls.IPlayerActions.OnHideFog(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
+        // TODO : add live key
+        if (context.performed)
+            MapManager.instance.showFog = !MapManager.instance.showFog;
+    }
+
     private void FixedUpdate()
     {
         if (GameManager.instance.IsPlayerTurn && moveKeyHeld)
@@ -63,7 +59,7 @@ public class Player : MonoBehaviour, Controls.IPlayerActions
         Vector3 futurePosition = transform.position + (Vector3)roundedDirection;
 
         if (IsValidPosition(futurePosition))
-            Action.MovementAction(GetComponent<Entity>(), roundedDirection);
+            moveKeyHeld = Action.BumpAction(GetComponent<Entity>(), roundedDirection);
     }
 
     private bool IsValidPosition (Vector3 futurePosition)
