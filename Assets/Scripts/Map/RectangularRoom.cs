@@ -6,8 +6,12 @@ using UnityEngine.Rendering;
 [System.Serializable]
 public class RectangularRoom
 {
-    public int x, y;
-    public int width, height;
+    [SerializeField] private int x, y, width, height, overflow = 2;
+
+    public int X { get => x; set { x = value; } }
+    public int Y { get => y; set { y = value; } }
+    public int Width { get =>  width; set { width = value; } }
+    public int Height { get =>  height; set { height = value; } }
 
     public RectangularRoom (int x, int y, int width, int height)
     {
@@ -21,10 +25,10 @@ public class RectangularRoom
     public Vector2Int Center() => new Vector2Int(x+width/2, y+height/2);
 
     // Return the area of the room as a Bounds
-    public Bounds GetBounds() => new Bounds(new Vector3(x, y, 0), new Vector3(width, height, 0));
+    public Bounds GetBounds() => new Bounds(new Vector3(x, y, 0), new Vector3(width + overflow, height + overflow, 0));
 
     // Return the area of the room as a BoundsInt
-    public BoundsInt GetBoundsInt() => new BoundsInt(new Vector3Int(x, y, 0), new Vector3Int(width, height, 0));
+    public BoundsInt GetBoundsInt() => new BoundsInt(new Vector3Int(x, y, 0), new Vector3Int(width + overflow, height + overflow, 0));
 
     // True if this new room overlaps another one
     public bool Overlaps(List<RectangularRoom> otherRooms)

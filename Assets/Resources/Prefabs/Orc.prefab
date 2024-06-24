@@ -10,7 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1707933625583165870}
   - component: {fileID: 202178027384285241}
-  - component: {fileID: 6984259686451903852}
+  - component: {fileID: -6714198951087775959}
+  - component: {fileID: -2508183718634897068}
+  - component: {fileID: -6180313476013466221}
+  - component: {fileID: 746272875993513034}
   m_Layer: 0
   m_Name: Orc
   m_TagString: Untagged
@@ -85,7 +88,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &6984259686451903852
+--- !u!114 &-6714198951087775959
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,10 +97,56 @@ MonoBehaviour:
   m_GameObject: {fileID: 4637204458707675562}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b9eddcde2033a547b2ad3d3ffc8f602, type: 3}
+  m_Script: {fileID: 11500000, guid: d3e62671ce8e002478092120b36e8f4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isSentient: 1
   blocksMovement: 1
+  isAlive: 1
   fieldOfViewRange: 8
   fieldOfView: []
+  ai: {fileID: 746272875993513034}
+--- !u!114 &-2508183718634897068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4637204458707675562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a7d0af189ab5e14e9b787d1f25db008, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHP: 10
+  hp: 10
+  defense: 0
+  power: 3
+  target: {fileID: 0}
+--- !u!114 &-6180313476013466221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4637204458707675562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1afe9ab857b3b504da3dbca2ec96dcd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &746272875993513034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4637204458707675562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 274d999d1981c8844a76a93b2836784b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  aStar: {fileID: -6180313476013466221}
+  fighter: {fileID: -2508183718634897068}
+  isFighting: 0
+  attackRange: 0

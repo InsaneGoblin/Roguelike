@@ -53,7 +53,7 @@ sealed class ProcGen
             }
 
 
-            PlaceEntities(newRoom, maxMonstersPerRoom);
+            PlaceActors(newRoom, maxMonstersPerRoom);
 
             //Debug.Log("Placing room number " + rooms.Count);
 
@@ -129,7 +129,7 @@ sealed class ProcGen
         yield return new WaitForSeconds(0.25f);
     }
 
-    private void PlaceEntities (RectangularRoom newRoom, int maxMonsters)
+    private void PlaceActors (RectangularRoom newRoom, int maxMonsters)
     {
         int numberOfMonsters = Random.Range(0, maxMonsters + 1);
 
@@ -137,10 +137,10 @@ sealed class ProcGen
 
         for (int monster = 0; monster < numberOfMonsters; monster++)
         {
-            int x = Random.Range(newRoom.x, newRoom.x + newRoom.width);
-            int y = Random.Range(newRoom.y, newRoom.y + newRoom.height);
+            int x = Random.Range(newRoom.X, newRoom.X + newRoom.Width);
+            int y = Random.Range(newRoom.Y, newRoom.Y + newRoom.Height);
 
-            if (x == newRoom.x || x == newRoom.x + newRoom.width - 1 || y == newRoom.y || y == newRoom.y + newRoom.height - 1)
+            if (x == newRoom.X || x == newRoom.X + newRoom.Width - 1 || y == newRoom.Y || y == newRoom.Y + newRoom.Height - 1)
                 continue;
 
             for (int entity = 0; entity < GameManager.instance.Entities.Count; entity++)

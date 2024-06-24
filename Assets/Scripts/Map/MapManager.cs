@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static UnityEditor.PlayerSettings;
 using static UnityEngine.EventSystems.EventTrigger;
 
 public class MapManager : MonoBehaviour
@@ -25,6 +26,7 @@ public class MapManager : MonoBehaviour
     //[SerializeField] private Color32 lightColor = new Color32(255, 255, 255, 255);
 
     [Header("Tiles and Tilemaps")]
+    [SerializeField] private TileBase emptyTile;
     [SerializeField] private TileBase floorTile;
     [SerializeField] private TileBase wallTile;
     [SerializeField] private TileBase fogTile;
@@ -36,14 +38,18 @@ public class MapManager : MonoBehaviour
     [SerializeField] private List<Vector3Int> visibleTiles = new List<Vector3Int>();
     [SerializeField] private List<RectangularRoom> rooms = new List<RectangularRoom>();
     [SerializeField] private Dictionary<Vector3Int, TileData> tiles = new Dictionary<Vector3Int, TileData>();
+    [SerializeField] private Dictionary<Vector2Int, Node> nodes = new Dictionary<Vector2Int, Node>();
 
-
- public TileBase FloorTile {  get { return floorTile; } }
+    public int Width { get { return width; } }
+    public int Height { get { return height; } }
+    public TileBase EmptyTile { get { return emptyTile; } }
+    public TileBase FloorTile {  get { return floorTile; } }
     public TileBase WallTile { get { return wallTile; } }
     public Tilemap FloorMap { get { return floorMap; } }
     public Tilemap ObstacleMap { get { return obstacleMap; } }
     public Tilemap FogMap { get { return fogMap; } }
     public List<RectangularRoom> Rooms { get { return rooms; } }
+    public Dictionary<Vector2Int, Node> Nodes { get { return nodes; } }
 
     void Awake()
     {
@@ -81,15 +87,13 @@ public class MapManager : MonoBehaviour
 
         if (showFog)
             SetupFogMap();
-
-        // Instantiate(Resources.Load<GameObject>("Prefabs/NPC"), new Vector3(40 - 5.5f, 25 + 0.5f, 0), Quaternion.identity).name = "NPC";
-
     }
 
     public bool InBounds(int x, int y) => 0 <= x && x < width && 0 <= y && y < height;
 
     public void CreateEntity(string entity, Vector2 position)
     {
+        /* Old Switch to instantiate prefabs
         switch (entity)
         {
             case "Player":
@@ -111,19 +115,27 @@ public class MapManager : MonoBehaviour
                 Debug.LogError("Entity not found");
                 break;
         }
-        //Debug.Log("Created " + entity + " at " + position);
+        */
+
+        Instantiate(Resources.Load<GameObject>("Prefabs/"+entity), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = entity;
+
+        //MapManager.instance.FloorMap.SetTile(new Vector3Int((int)position.x, (int)position.y, 0), null);
+        //tiles[new Vector3Int((int)position.x, (int)position.y, 0)].isVisible = false;
+
+        Vector3Int pos3 = new Vector3Int((int)position.x, (int)position.y, 0);
+        Debug.Log("Created " + entity + " at " + pos3);
     }
     public void UpdateFogMap(List<Vector3Int> playerFOV)
     {
         // Checks all tiles. If explored but not in FOV, reduce alpha
         foreach (Vector3Int pos in visibleTiles)
         {
-            if (!tiles[pos].isExplored)
+            if (!tiles[pos].IsExplored)
             {
-                tiles[pos].isExplored = true;
+                tiles[pos].IsExplored = true;
             }
 
-            tiles[pos].isVisible = false;
+            tiles[pos].IsVisible = false;
             fogMap.SetColor(pos, new Color(1, 1, 1, 0.5f));
         }
 
@@ -132,27 +144,27 @@ public class MapManager : MonoBehaviour
         // If visible, show
         foreach (Vector3Int pos in playerFOV)
         {
-            tiles[pos].isVisible = true;
+            //tiles[pos].isVisible = true;
             fogMap.SetColor(pos, Color.clear);
             visibleTiles.Add(pos);
         }
 
         // TODO Debug: remove fog, show everything
-        if (showFog)
-        {
-            foreach (Vector3Int pos in playerFOV)
-            {
-                tiles[pos].isVisible = true;
-                fogMap.SetColor(pos, Color.clear);
-                visibleTiles.Add(pos);
-            }
-        }
+        //if (showFog)
+        //{
+        //    foreach (Vector3Int pos in playerFOV)
+        //    {
+        //        tiles[pos].isVisible = true;
+        //        fogMap.SetColor(pos, Color.clear);
+        //        visibleTiles.Add(pos);
+        //    }
+        //}
     }
 
-    // If something is not in Player's FOV, hide it
+    // If en entity is not in Player's FOV, hide it
     public void SetEntitiesVisibilities()
     {
-        foreach (Entity entity in GameManager.instance.Entities)
+        foreach (Actor entity in GameManager.instance.Entities)
         {
             if (entity.GetComponent<Player>()) continue;
 
@@ -187,6 +199,11 @@ public class MapManager : MonoBehaviour
             fogMap.SetTile(pos, fogTile);
             fogMap.SetTileFlags(pos, TileFlags.None);
         }
+    }
+
+    public void ShowFloorTile(Vector3Int pos, bool show)
+    {
+        FloorMap.SetTile(pos, show ? floorTile : emptyTile);
     }
 
 }
