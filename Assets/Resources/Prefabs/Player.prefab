@@ -114,7 +114,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blocksMovement: 1
   isAlive: 1
-  fieldOfViewRange: 8
+  fieldOfViewRange: 99
   fieldOfView: []
   ai: {fileID: 0}
 --- !u!114 &2211487136558203755

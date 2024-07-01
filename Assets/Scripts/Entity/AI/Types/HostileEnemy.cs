@@ -6,6 +6,7 @@ using UnityEngine;
 public class HostileEnemy : AI
 {
     [SerializeField] private Fighter fighter;
+    [SerializeField] private Actor actor;
     [SerializeField] private bool isFighting;
     [SerializeField] private float attackRange;
 
@@ -14,6 +15,7 @@ public class HostileEnemy : AI
     private void OnValidate()
     {
         fighter = GetComponent<Fighter>();
+        actor = GetComponent<Actor>();
         AStar = GetComponent<AStar>();
     }
 
@@ -24,13 +26,15 @@ public class HostileEnemy : AI
         else if (fighter.Target && !fighter.Target.IsAlive)
             fighter.Target = null;
 
-        if (fighter.Target)
+        Vector3Int targetPosition = MapManager.instance.FloorMap.WorldToCell(fighter.Target.transform.position);
+        float targetDistance = Vector3.Distance(transform.position, fighter.Target.transform.position);
+
+        if (fighter.Target && targetDistance < actor.FieldOfViewRange)
         {
-            Vector3Int targetPosition = MapManager.instance.FloorMap.WorldToCell(fighter.Target.transform.position);
 
             if (!isFighting) isFighting = true;
             
-            float targetDistance = Vector3.Distance(transform.position, fighter.Target.transform.position);
+            //Debug.Log("Found target " + fighter.Target + " at distance: " + targetDistance);
 
             if (targetDistance <= attackRange) // is in attack range?
             {

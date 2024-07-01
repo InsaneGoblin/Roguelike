@@ -11,6 +11,7 @@ public class Actor : Entity
 
     AdamMilVisibility algorithm;
 
+    public int FieldOfViewRange { get => fieldOfViewRange; }
     public bool IsAlive { get => isAlive; set => isAlive = value; }
     public List<Vector3Int> FieldOfView { get => fieldOfView; }
 
