@@ -20,10 +20,7 @@ public class MapManager : MonoBehaviour
     [SerializeField] private int roomMinSize = 6;
     [SerializeField] private int maxRooms = 30;
     [SerializeField] private int maxMonstersPerRoom = 2;
-
-    //[Header("Colors")]
-    //[SerializeField] private Color32 darkColor = new Color32(0, 0, 0, 0);
-    //[SerializeField] private Color32 lightColor = new Color32(255, 255, 255, 255);
+    [SerializeField] private int maxItemsPerRoom = 2;
 
     [Header("Tiles and Tilemaps")]
     [SerializeField] private TileBase emptyTile;
@@ -61,26 +58,8 @@ public class MapManager : MonoBehaviour
 
     void Start()
     {
-        /* Old debug
-        Vector3 centerTile = new Vector3Int(width / 2, height / 2, 0);
-
-        BoundsInt wallBounds = new BoundsInt(new Vector3Int(29, 28, 0), new Vector3Int(3, 1, 0));
-
-        for (int x = 0; x < wallBounds.size.x; x++)
-        {
-            for (int y = 0; y < wallBounds.size.y; y++)
-            {
-                Vector3Int wallPosition = new Vector3Int(wallBounds.min.x + x, wallBounds.min.y + y, 0);
-                obstacleMap.SetTile(wallPosition, wallTile);
-            }
-        }
-
-        Camera.main.transform.position = new Vector3(40, 20.25f, -10);
-        Camera.main.orthographicSize = 27;
-        */
-
         ProcGen procGen = new ProcGen();
-        procGen.GenerateDungeon(width, height, roomMaxSize, roomMinSize, maxRooms, maxMonstersPerRoom, rooms);
+        procGen.GenerateDungeon(width, height, roomMaxSize, roomMinSize, maxRooms, maxMonstersPerRoom, maxItemsPerRoom, rooms);
 
         AddTileMapToDictionary(floorMap);
         AddTileMapToDictionary(obstacleMap);
@@ -117,13 +96,23 @@ public class MapManager : MonoBehaviour
         }
         */
 
-        Instantiate(Resources.Load<GameObject>("Prefabs/"+entity), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = entity;
+        //Instantiate(Resources.Load<GameObject>("Prefabs/"+entity), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = entity;
 
-        //MapManager.instance.FloorMap.SetTile(new Vector3Int((int)position.x, (int)position.y, 0), null);
-        //tiles[new Vector3Int((int)position.x, (int)position.y, 0)].isVisible = false;
+        try
+        {
+            GameObject entityToCreate;
+            entityToCreate = Resources.Load<GameObject>("Prefabs/" + entity);
+            if (entityToCreate != null)
+                Instantiate(entityToCreate, new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = entity;
+            else
+                Debug.LogError("Prefab '" + entity + "' not found in Resources folder!");
+        }
+        catch (System.Exception e)
+        { 
+            Debug.LogError("Error loading prefab: " + e.Message);
+        }
 
         Vector3Int pos3 = new Vector3Int((int)position.x, (int)position.y, 0);
-        //Debug.Log("Created " + entity + " at " + pos3);
     }
     public void UpdateFogMap(List<Vector3Int> playerFOV)
     {
@@ -148,28 +137,16 @@ public class MapManager : MonoBehaviour
             fogMap.SetColor(pos, Color.clear);
             visibleTiles.Add(pos);
         }
-
-        // TODO Debug: remove fog, show everything
-        //if (showFog)
-        //{
-        //    foreach (Vector3Int pos in playerFOV)
-        //    {
-        //        tiles[pos].isVisible = true;
-        //        fogMap.SetColor(pos, Color.clear);
-        //        visibleTiles.Add(pos);
-        //    }
-        //}
     }
 
     // If en entity is not in Player's FOV, hide it
     public void SetEntitiesVisibilities()
     {
-        foreach (Actor entity in GameManager.instance.Entities)
+        foreach (Entity entity in GameManager.instance.Entities)
         {
             if (entity.GetComponent<Player>()) continue;
 
             Vector3Int entityPosition = floorMap.WorldToCell(entity.transform.position);
-
 
             if (!showFog)
                 entity.GetComponent<SpriteRenderer>().enabled = true;

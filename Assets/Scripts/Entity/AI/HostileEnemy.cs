@@ -33,8 +33,8 @@ public class HostileEnemy : AI
         {
 
             if (!isFighting) isFighting = true;
-            
-            //Debug.Log("Found target " + fighter.Target + " at distance: " + targetDistance);
+
+            //UIManager.instance.AddMessage($"The {actor.name} sees you!", "white");
 
             if (targetDistance <= attackRange) // is in attack range?
             {

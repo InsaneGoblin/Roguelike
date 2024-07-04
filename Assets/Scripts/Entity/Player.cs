@@ -36,7 +36,7 @@ public class Player : MonoBehaviour, Controls.IPlayerActions
     void Controls.IPlayerActions.OnExit(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
         if (context.performed)
-            Action.EscapeAction();
+            UIManager.instance.ToggleMenu();
     }
 
     void Controls.IPlayerActions.OnHideFog(UnityEngine.InputSystem.InputAction.CallbackContext context)
@@ -49,12 +49,49 @@ public class Player : MonoBehaviour, Controls.IPlayerActions
     public void OnView(InputAction.CallbackContext context)
     {
         if (context.performed)
+            if (!UIManager.instance.IsMenuOpen || UIManager.instance.IsMessageHistoryOpen)
             UIManager.instance.ToggleMessageHistory();
+    }
+
+    public void OnPickup (InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Action.PickupAction(GetComponent<Actor>());
+        }
+    }
+
+    public void OnInventory(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            if (!UIManager.instance.IsMenuOpen || UIManager.instance.IsInventoryOpen)
+            {
+                if (GetComponent<Inventory>().Items.Count > 0)
+                    UIManager.instance.ToggleInventory(GetComponent<Actor>());
+                else
+                    UIManager.instance.AddMessage("You have no items.", "grey");
+            }
+        }
+    }
+
+    public void OnDrop(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            if (!UIManager.instance.IsMenuOpen || UIManager.instance.IsInventoryOpen)
+            {
+                if (GetComponent<Inventory>().Items.Count > 0)
+                    UIManager.instance.ToggleDropMenu(GetComponent<Actor>());
+                else
+                    UIManager.instance.AddMessage("You have no items.", "grey");
+            }
+        }
     }
 
     private void FixedUpdate()
     {
-        if (!UIManager.instance.IsMessageHistoryOpen)
+        if (!UIManager.instance.IsMenuOpen)
             if (GameManager.instance.IsPlayerTurn && moveKeyHeld && GetComponent<Actor>().IsAlive)
                 MovePlayer();
 

@@ -19,6 +19,12 @@ sealed class Fighter : MonoBehaviour
             if (GetComponent<Player>())
                 UIManager.instance.SetHealth(hp, maxHP);
 
+            if (hp <= maxHP / 4 && hp > 0 && GetComponent<Player>())
+                UIManager.instance.AddMessage($"You're badly hurt!", "red");
+
+            if (hp <= maxHP / 4 && maxHP > 15 && hp > 0 && !GetComponent<Player>())
+                UIManager.instance.AddMessage($"The {name} is badly hurt!", "orange");
+
             if (hp == 0)
                 Die();
         }
@@ -39,9 +45,9 @@ sealed class Fighter : MonoBehaviour
     private void Die ()
     {
         if (GetComponent<Player>())
-            UIManager.instance.AddMessage("You died!", "#ff0000"); // red
+            UIManager.instance.AddMessage("You died!", "dark red");
         else
-            UIManager.instance.AddMessage($"{name} is dead!", "#ffa500"); // light orange
+            UIManager.instance.AddMessage($"{name} is dead!", "orange");
 
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = GameManager.instance.DeadSprite;
@@ -54,5 +60,20 @@ sealed class Fighter : MonoBehaviour
 
         if (!GetComponent <Player>())
             GameManager.instance.RemoveActor(this.GetComponent<Actor>());
+    }
+
+    public int Heal(int amount)
+    {
+        if (hp == maxHP)
+            return 0;
+
+        int newHPValue = hp + amount;
+
+        if (newHPValue > maxHP)
+            newHPValue = maxHP;
+
+        int amountRecovered = newHPValue - hp;
+        HP = newHPValue;
+        return amountRecovered;
     }
 }

@@ -8,17 +8,22 @@ public class Actor : Entity
     [SerializeField] private int fieldOfViewRange = 8;
     [SerializeField] private List<Vector3Int> fieldOfView;
     [SerializeField] private AI ai;
+    [SerializeField] private Inventory inventory;
 
     AdamMilVisibility algorithm;
 
     public int FieldOfViewRange { get => fieldOfViewRange; }
     public bool IsAlive { get => isAlive; set => isAlive = value; }
     public List<Vector3Int> FieldOfView { get => fieldOfView; }
+    public Inventory Inventory { get => inventory; }
 
     private void OnValidate()
     {
         if (GetComponent<AI>())
             ai = GetComponent<AI>();
+
+        if (GetComponent <Inventory>())
+            inventory = GetComponent<Inventory>();
     }
 
     void Start()
