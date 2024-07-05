@@ -149,7 +149,9 @@ sealed class ProcGen
                 }
             }
 
-            if (Random.value < 0.8f)
+            float randomValue = Random.value;
+
+            if (randomValue < 0.8f)
                 MapManager.instance.CreateEntity("Orc", new Vector2(x, y));
             else
                 MapManager.instance.CreateEntity("Troll", new Vector2(x, y));
@@ -175,7 +177,16 @@ sealed class ProcGen
                 }
             }
 
-            MapManager.instance.CreateEntity("Potion of Health", new Vector2(x, y));
+            float randomValue = Random.value;
+
+            if (randomValue < 0.6f)
+                MapManager.instance.CreateEntity("Potion of Health", new Vector2(x, y));
+            else if (randomValue < 0.7f)
+                MapManager.instance.CreateEntity("Scroll of Fireball", new Vector2(x, y));
+            else if (randomValue < 0.8f)
+                MapManager.instance.CreateEntity("Scroll of Confusion", new Vector2(x, y));
+            else if (randomValue < 0.9f)
+                MapManager.instance.CreateEntity("Scroll of Lightning", new Vector2(x, y));
 
             item++;
         }

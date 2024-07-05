@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 198657387791239380}
   - component: {fileID: 2497722024232265234}
   - component: {fileID: 2227917293834819224}
-  - component: {fileID: 4439300478040667627}
+  - component: {fileID: 8508856977429318731}
   m_Layer: 0
-  m_Name: Potion of Health
+  m_Name: Scroll of Fireball
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -75,8 +75,8 @@ SpriteRenderer:
   m_SortingLayerID: 1888652243
   m_SortingLayer: 3
   m_SortingOrder: 1
-  m_Sprite: {fileID: -1292026663, guid: b8e24bee67092e04a946e4eab55dacea, type: 3}
-  m_Color: {r: 0.43867922, g: 0.49371064, b: 1, a: 1}
+  m_Sprite: {fileID: 603090092, guid: b8e24bee67092e04a946e4eab55dacea, type: 3}
+  m_Color: {r: 1, g: 0, b: 0.042412758, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -99,8 +99,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blocksMovement: 0
-  consumable: {fileID: 4439300478040667627}
---- !u!114 &4439300478040667627
+  consumable: {fileID: 8508856977429318731}
+--- !u!114 &8508856977429318731
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -109,7 +109,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 4399180693679678246}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 323527c0e8fa0ba4da65b89338d01f88, type: 3}
+  m_Script: {fileID: 11500000, guid: 92e9e3a8f60386442b1c6249670b6db4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  amount: 10
+  damage: 12
+  radius: 3

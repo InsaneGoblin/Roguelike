@@ -182,5 +182,35 @@ public class MapManager : MonoBehaviour
     {
         FloorMap.SetTile(pos, show ? floorTile : emptyTile);
     }
+    public bool IsValidPosition(Vector3 futurePosition)
+    {
+        /* old code
+        Vector3Int gridPosition = MapManager.instance.FloorMap.WorldToCell(futurePosition);
 
+        if (!MapManager.instance.InBounds(gridPosition.x, gridPosition.y))
+        {
+            Debug.Log("Cell " + gridPosition.x + ", " + gridPosition.y + " is out of bounds!");
+            return false;
+        }
+
+        else if (MapManager.instance.ObstacleMap.HasTile(gridPosition))
+        {
+            //Debug.Log("Cell " + gridPosition.x + ", " + gridPosition.y + " is blocked by an obstacle!");
+            return false;
+        }
+
+        else if (futurePosition == transform.position)
+        {
+            return false;
+        }
+
+        */
+
+        Vector3Int gridPosition = floorMap.WorldToCell(futurePosition);
+
+        if (!InBounds(gridPosition.x, gridPosition.y) || obstacleMap.HasTile(gridPosition))
+            return false;
+
+        return true;
+    }
 }

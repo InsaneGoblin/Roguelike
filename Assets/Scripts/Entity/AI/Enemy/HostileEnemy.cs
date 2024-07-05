@@ -19,7 +19,7 @@ public class HostileEnemy : AI
         AStar = GetComponent<AStar>();
     }
 
-    public void RunAI()
+    public override void RunAI()
     {
         if (!fighter.Target)
             fighter.Target = GameManager.instance.Actors[0];
@@ -48,6 +48,6 @@ public class HostileEnemy : AI
             }
         }
 
-        Action.SkipAction();
+        Action.WaitAction();
     }
 }
